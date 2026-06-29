@@ -10,18 +10,19 @@ export default function CameraScreen() {
   // 1. Initialize the router inside your component
   const router = useRouter(); 
 
-  async function takePicture() {
-    if (!cameraRef.current) return;
-    const result = await cameraRef.current.takePictureAsync({ quality: 0.7 });
-    
-    console.log("Photo captured at:", result.uri); 
-    
-    // 2. Push the user to the preview screen and hand it the photo!
-    router.push({
-      pathname: '/preview',
-      params: { photoUri: result.uri }
-    });
+async function takePicture() {
+  if (cameraRef.current) {
+    try {
+      const result = await cameraRef.current.takePictureAsync({ quality: 0.7 });
+      router.push({
+        pathname: '/preview',
+        params: { photoUri: result.uri }
+      });
+    } catch (error) {
+      console.error("Camera capture failed:", error);
+    }
   }
+}
 
   if (!permission) {
     return <View style={styles.container} />;

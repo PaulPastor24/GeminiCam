@@ -1,10 +1,25 @@
 import { View, Image, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { imageToBase64 } from '../lib/gemini'; // <-- Import the new helper
 
 export default function PreviewScreen() {
-  // Expo Router grabs the variables we passed in the URL
   const { photoUri } = useLocalSearchParams<{ photoUri: string }>();
   const router = useRouter();
+
+  // The new function to convert the image and navigate
+  async function handleAnalyze() {
+    console.log("Converting image...");
+    const base64Image = await imageToBase64(photoUri);
+    console.log("Converted! Base64 length:", base64Image.length);
+
+    router.push({
+      pathname: '/result',
+      params: { 
+        base64Image: base64Image, 
+        photoUri: photoUri // Passing this along too so we can still see the image on the final screen!
+      }
+    });
+  }
 
   return (
     <View style={styles.container}>
@@ -15,10 +30,8 @@ export default function PreviewScreen() {
           <Text style={styles.buttonText}>Retake</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity
-          style={styles.analyzeButton}
-          onPress={() => router.push({ pathname: '/result', params: { photoUri } })}
-        >
+        {/* Update the button to use the new handleAnalyze function */}
+        <TouchableOpacity style={styles.analyzeButton} onPress={handleAnalyze}>
           <Text style={styles.buttonText}>Analyze</Text>
         </TouchableOpacity>
       </View>

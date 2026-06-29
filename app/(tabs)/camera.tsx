@@ -1,17 +1,26 @@
 import { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import { useRouter } from 'expo-router';
 
 export default function CameraScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef(null);
-  const [photo, setPhoto] = useState(null);
+  
+  // 1. Initialize the router inside your component
+  const router = useRouter(); 
 
   async function takePicture() {
     if (!cameraRef.current) return;
     const result = await cameraRef.current.takePictureAsync({ quality: 0.7 });
-    setPhoto(result.uri);
-    console.log("Photo captured at:", result.uri); // Checkpoint log!
+    
+    console.log("Photo captured at:", result.uri); 
+    
+    // 2. Push the user to the preview screen and hand it the photo!
+    router.push({
+      pathname: '/preview',
+      params: { photoUri: result.uri }
+    });
   }
 
   if (!permission) {
